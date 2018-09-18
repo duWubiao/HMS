@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="cn.hms.entity.Liverecord" table="liverecord">
+         <id name="id" column="id" type="java.lang.Integer">
+            <generator class="identity"></generator>
+        </id>
+       <property name="roomId" type="java.lang.Integer">
+            <column name="roomId" />
+        </property>
+        <property name="rid" type="java.lang.Integer">
+            <column name="rid" />
+        </property>        
+        <property name="name" type="java.lang.String">
+            <column name="name" />
+        </property>
+        <property name="day" type="java.lang.Integer">
+            <column name="day" />
+        </property>        
+        <property name="idCard" type="java.lang.String">
+            <column name="idCard" />
+        </property>
+        <property name="price">
+            <column name="price" />
+        </property>
+        <property name="regtime">
+            <column name="regtime" />
+        </property>
+         <property name="phone" type="java.lang.String">
+            <column name="phone" />
+        </property>
+         <property name="ifendId" type="java.lang.Integer">
+            <column name="ifendId" />
+        </property>
+<!--         <many-to-one name="room" class="Room" column="roomId" unique="true" cascade="save-update,delete"></many-to-one>
+ --> </class>
+</hibernate-mapping>
+

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+	<struts>
+	<constant name="struts.enable.DynamicMethodInvocation" value="true" />
+	<constant name="struts.devMode" value="true" />
+	<constant name="struts.i18n.encoding" value="utf-8" />	
+	<constant name="struts.multipart.maxSize" value="5000000"/>
+	
+	<package name="default" namespace="/" extends="json-default">
+		<interceptors>
+			<interceptor name="author" class="cn.hms.interceptor.AuthorizationInterceptor"></interceptor>
+			<interceptor name="room" class="cn.hms.interceptor.RoomInterceptor"></interceptor>
+			<interceptor name="live" class="cn.hms.interceptor.LiveInterceptor"></interceptor>
+			<interceptor-stack name="hms">
+				<interceptor-ref name="room"></interceptor-ref>
+				<interceptor-ref name="live"></interceptor-ref>
+				<interceptor-ref name="author"></interceptor-ref>
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		
+		<global-results>
+			<result name="error">/error.jsp</result>
+		</global-results>
+		
+		<action name="users_*" class="userAction" method="{1}">
+			<result type="json"></result>
+			<interceptor-ref name="hms"></interceptor-ref>
+		</action>
+		<action name="user2_*" class="userAction" method="{1}">
+			<result>/jsp/frame.jsp</result>
+			<result name="user">/jsp/userlist.jsp</result>
+			<result name="input">/login.jsp</result>
+		</action>
+		<action name="user_*" class="userAction" method="{1}">
+			<result name="user_2">/jsp/usermodify.jsp</result>
+			<result name="register">/jsp/lives.jsp</result>
+			<result name="user">/jsp/userlist.jsp</result>
+		    <result name="input">/login.jsp</result>
+		    <interceptor-ref name="hms"></interceptor-ref>
+		</action>  
+		 
+	<!--<action name="user_*" class="userAction" method="{1}">
+		    <result type="redirectAction">user_bypage</result>
+		    <result name="input">/login.jsp</result>
+		    <result name="index">/index.jsp</result>
+		    <result name="update">/update.jsp</result>
+		    <result name="insert">/insert.jsp</result>
+		</action> -->
+		
+		<action name="room_*" class="cn.hms.action.RoomAction" method="{1}">
+			<result type="json"></result>
+			
+		</action>
+		
+		<action name="rooms_*" class="cn.hms.action.RoomAction" method="{1}">
+			<result name="room">/jsp/providerlist.jsp</result>
+			<result name="input">/jsp/making.jsp</result>
+			<interceptor-ref name="hms"></interceptor-ref>
+		</action>
+		
+		<action name="rooms2_*" class="cn.hms.action.RoomAction" method="{1}">
+			<result name="room">/jsp/providerlist.jsp</result>
+			<result name="input">/jsp/making.jsp</result>
+		</action>
+		
+		<action name="live_*" class="cn.hms.action.LivereCordAction" method="{1}">
+			<result>/making.jsp</result>
+			<result name="liveroom">/jsp/billview.jsp</result>
+			<result name="liveroom_2">/jsp/billmodify.jsp</result>
+			<result name="live">/jsp/lives.jsp</result>
+			<result name="input">/jsp/making.jsp</result>
+			<interceptor-ref name="hms"></interceptor-ref>
+		</action>
+		<action name="live2_*" class="cn.hms.action.LivereCordAction" method="{1}">
+			<result>/making.jsp</result>
+			<result name="liveroom">/jsp/billview.jsp</result>
+			<result name="liveroom_2">/jsp/billmodify.jsp</result>
+			<result name="live">/jsp/lives.jsp</result>
+			<result name="input">/jsp/making.jsp</result>
+		</action>
+	</package>
+</struts>

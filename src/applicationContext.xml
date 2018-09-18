@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+	<!-- JAVABEAN -->
+	<bean id="room" class="cn.hms.entity.Room"></bean>
+	<bean id="live" class="cn.hms.entity.Liverecord"></bean>
+	<bean id="user" class="cn.hms.entity.User"></bean>
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:database.properties" />
+	</bean>
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}"></property>
+		<property name="url" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<!-- 方法二 -->
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="hibernateProperties">
+			<!-- <props> <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop> 
+				<prop key="show_sql">true</prop> <prop key="format_sql">true</prop> <prop 
+				key="javax.persistence.validation.mode">none</prop> </props> -->
+			<value>
+				hibernate.dialect=org.hibernate.dialect.MySQLDialect
+				<!-- hibernate.show_sql=true -->
+				hibernate.format_sql=true
+				hibernate.jdbc.batch_size=50
+			</value>
+		</property>
+		<property name="mappingLocations">
+			<list>
+				<!-- <value>cn/houserent/entity/HouseUser.hbm.xml</value> -->
+				<value>classpath:cn/hms/entity/*.hbm.xml</value>
+			</list>
+		</property>
+
+	</bean>
+	<!-- Dao autowire="byName" Class=user -->
+	<bean id="userDao" class="cn.hms.dao.impl.UserDaoImpl">
+		<!-- 有了这个才能拿到具体的sessionFactory创建会话 -->
+		<property name="hibernateTemplate" ref="hibernateTemplate"></property>
+	</bean>
+	<!-- Dao Class=user -->
+	<bean id="roomDao" class="cn.hms.dao.impl.RoomDaoImpl">
+		<property name="hibernateTemplate" ref="hibernateTemplate"></property>
+	</bean>
+	<!-- Dao Class=roomType -->
+	<bean id="roomTypeDao" class="cn.hms.dao.impl.RoomTypeImpl">
+		<property name="hibernateTemplate" ref="hibernateTemplate"></property>
+	</bean>
+	<!-- Dao Class=LivereCord -->
+	<bean id="liveDao" class="cn.hms.dao.impl.LivereCordDaoImpl">
+		<property name="hibernateTemplate" ref="hibernateTemplate"></property>
+	</bean>
+	<!-- 配置HibernateTemplate -->
+	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!--Service Class=user -->
+	<bean id="userBiz" class="cn.hms.service.impl.UserBizImpl">
+		<property name="userDao" ref="userDao" />
+	</bean>
+	<!-- Service Class=room -->
+	<bean id="roomBiz" class="cn.hms.service.impl.RoomBizImpl">
+		<property name="roomDao" ref="roomDao" />
+	</bean>
+	<!-- Service Class=roomType -->
+	<bean id="roomTypeBiz" class="cn.hms.service.impl.RoomTypeBizImpl">
+		<property name="roomTypeDao" ref="roomTypeDao" />
+	</bean>
+	<!--Service Class=LivereCord -->
+	<bean id="liveBiz" class="cn.hms.service.impl.LivereCordBizImpl">
+		<property name="liveDao" ref="liveDao" />
+	</bean>
+	<!--Action -->
+	<!-- scope="session，request，prototype，request和prototype类似" -->
+	<bean id="userAction" class="cn.hms.action.UserAction" scope="prototype">
+		<property name="userBiz" ref="userBiz"></property>
+	</bean>
+	<bean id="roomAction" class="cn.hms.action.RoomAction" scope="prototype">
+		<property name="roomBiz" ref="roomBiz"></property>
+	</bean>
+	<bean id="liveAction" class="cn.hms.action.LivereCordAction" scope="prototype">
+		<property name="liveBiz" ref="liveBiz"></property>
+		<property name="roomBiz" ref="roomBiz"></property>
+		<property name="roomTypeBiz" ref="roomTypeBiz"></property>
+		<property name="userBiz" ref="userBiz"></property>
+	</bean>
+
+	<!-- 事务管理器 -->
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- 定义事物增强 -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<!--定义事物的属性、规则 -->
+		<tx:attributes>
+			<!--登录方法只需要读，不需要改变,故将其改为read-only="true" -->
+			<tx:method name="find*" read-only="true" />
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 定义切面 -->
+	<aop:config>
+		<!--这些方法我要去哪里找 -->
+		<aop:pointcut expression="execution(* cn.hms.service..*.*(..))"
+			id="serviceMethod" />
+		<!-- 把增强织入到事物切面里面 -->
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethod" />
+	</aop:config>
+</beans>

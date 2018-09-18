@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+<class name="cn.hms.entity.Room" table="room">
+         <id name="id" column="id" type="java.lang.Integer">
+            <generator class="identity"></generator>
+        </id>  
+        <property name="number" type="java.lang.String">
+            <column name="number" />
+        </property>
+        <property name="type" type="java.lang.Integer">
+            <column name="type" />
+        </property>        
+        <property name="typename" type="java.lang.String">
+            <column name="typename" />
+        </property>
+         <property name="ifendId" type="java.lang.Integer">
+            <column name="ifendId" />
+        </property>
+<!--         <one-to-one name="live" class="Liverecord" property-ref="roomId"></one-to-one>
+ --> </class>
+</hibernate-mapping>
